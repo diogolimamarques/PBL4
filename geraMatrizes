@@ -1,0 +1,33 @@
+public void geraMatrizes() throws BiffException, IOException{            
+        Workbook wb = Workbook.getWorkbook(new File("bairros.xls"));        //Pega o arquivo
+        Sheet sheet = wb.getSheet(0);                                       //Pega a primeira planilha
+        
+        matrizDist = new float[50][50];                                     //Cria matriz de distancias
+        matrizTemp = new float[50][50];                                     //Cria matriz de tempos
+        
+        for(int i=0; i<50; i++){
+            for(int j=0; j<50; j++){
+                aux = sheet.getCell(i+1, j+1).getContents();                //Pega o conteudo da celula
+                
+                if(i == j){
+                    matrizDist[i][j] = 0;                                   //Mesmo bairro
+                    matrizTemp[i][j] = 0;
+                }
+                else if(aux != ""){
+                    aux = aux.trim();                                       //Retira os espacos
+                    aux2 = aux.split(",");                                  //Separa em distancia e tempo
+                
+                    aux2[0] = aux2[0].substring(5);                         //Retira o dist=
+                    matrizDist[i][j] = Float.parseFloat(aux2[0]);
+                
+                    aux2[1] = aux2[1].substring(7);                         //Retira o tempo=
+                    matrizTemp[i][j] = Float.parseFloat(aux2[1]);
+                }
+                else{
+                    matrizDist[i][j] = 9999999;                             //Não tem link
+                    matrizTemp[i][j] = 9999999;     
+                }
+            }
+        }    
+            wb.close();
+    }
