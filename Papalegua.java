@@ -5,11 +5,7 @@
  */
 package controller;
 
-import grafos.model.CompanhiaDeTaxi;
-import grafos.model.Taxista;
-import grafos.util.ILista;
-import grafos.util.Iterador;
-import grafos.util.Lista;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -21,30 +17,24 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import jxl.Cell;
 import jxl.Sheet;
-import util.*;
-/**
- *
- * @author user
- */
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
-import view.Principal;
+import util.*;
 import model.*;
 
 public class Papalegua {
     private Grafo grafo ;
-    private int qtdBairros;
-    private int qtdCaminhos;
-    private Principal tela;
     private String[]bairros;
     private int[]rota;
     private float distRota;
+    private float custoRota;
     private CompanhiaDeTaxi company;
     
     public Papalegua() {
        company = new CompanhiaDeTaxi(1.0);
        carregarDados();
     }
+    
     private void carregarDados(){        
         try {
             grafo = new Grafo(50);
@@ -73,6 +63,7 @@ public class Papalegua {
             Logger.getLogger(Papalegua.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
     private float[][] gerarMatrizTempo(){
         float [][] retorno = new float[50][50];
         for(int i=0;i<50;i++){
@@ -110,6 +101,7 @@ public class Papalegua {
         calcula.calcularMelhorRota(v1, v2);
         rota = calcula.getCaminho();
         distRota = calculaDistanciaDoCaminho();
+        custoRota = calculaCusto(distRota);
         return calcula.getPesoCaminho();
     }
     
@@ -185,7 +177,7 @@ public class Papalegua {
 
     }
     
-    /*Atribui a cada taxista um "bairro atual" aleatório.*/
+    /*Atribui a cada taxista um "bairro atual" aleatÃ³rio.*/
     
      public void posicionaTaxistasAleatoriamente(){
         
@@ -201,7 +193,7 @@ public class Papalegua {
          }
     }
      
-    /*Altera o custo por quilômetro*/
+    /*Altera o custo por quilÃ´metro*/
      
     public void alteraCusto(double novoCusto){
         company.setValor1km(novoCusto);
@@ -209,18 +201,18 @@ public class Papalegua {
     
     /*Calcula o custo, em reais, dada uma certa distania*/
     
-    private float calculaCusto(float distancia){
+    public float calculaCusto(float distancia){
         return distancia*((float)company.getValor1km());
     }
     
-    /*Guarda as informações da viagem num arquivo na pasta do projeto*/
+    /*Guarda as informaÃ§Ãµes da viagem num arquivo na pasta do projeto*/
     
     public void guardaViagem(String cliente, Taxista taxista, float distancia, float tempo, String origem, String destino) throws IOException{
         float custoViagem = calculaCusto(distancia);
         BufferedWriter escritor = new BufferedWriter(new FileWriter("Viagens.txt"));
             
         escritor.append("Cliente: "+cliente+"Motorista: "+taxista.getNome()+"Origem: "+origem+"Destino: "+destino+
-                        "Distância percorrida"+distancia+"Tempo: "+tempo+"Preço: R$"+custoViagem+"Data: "+getDataHora()); //Escreve
+                        "DistÃ¢ncia percorrida"+distancia+"Tempo: "+tempo+"PreÃ§o: R$"+custoViagem+"Data: "+getDataHora()); //Escreve
         escritor.newLine(); //Pula a linha
 
         escritor.close(); //Fecha o BufferedWriter
@@ -228,14 +220,14 @@ public class Papalegua {
     
     /*Método que colhe a data do sistema e a concatena numa String*/
         
-	private String getDataHora(){
-		String data = "";
-		SimpleDateFormat formata = new SimpleDateFormat("dd/MM/yyyy");
-		data = formata.format(new Date());							
-		formata = new SimpleDateFormat("hh:mm");
-		data = data + " - "+formata.format(new Date());
-		return data;
-	}
+    private String getDataHora(){
+        String data = "";
+        SimpleDateFormat formata = new SimpleDateFormat("dd/MM/yyyy");
+        data = formata.format(new Date());							
+        formata = new SimpleDateFormat("hh:mm");
+        data = data + " - "+formata.format(new Date());
+        return data;
+    }
    
     /**
      * @return the grafo
@@ -264,6 +256,13 @@ public class Papalegua {
 
     public CompanhiaDeTaxi getCompany(){
         return company;
+    }
+
+    /**
+     * @return the custoRota
+     */
+    public float getCustoRota() {
+        return custoRota;
     }
     
 }

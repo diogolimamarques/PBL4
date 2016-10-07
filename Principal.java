@@ -1,9 +1,14 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package view;
-
 import com.mxgraph.model.mxIGraphModel;
 import javax.swing.JFrame;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.view.mxGraph;
+import controller.Papalegua;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,81 +16,53 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.JButton;
-import controller.Papalegua;
-import java.awt.event.ComponentAdapter;
-import java.io.IOException;
-import javax.swing.plaf.basic.BasicSliderUI;
-import jxl.read.biff.BiffException;
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  *
  * @author user
  */
-public class Principal extends javax.swing.JFrame{
-    private JButton botaoIr;
+public class Principal extends javax.swing.JFrame {
     private mxGraphComponent graphComponent;
     private mxGraph graph;
-    private Papalegua controller;
-    private Object[] vertices;
+    private Papalegua controller = new Papalegua();
+    private Object[] bairros;
     private Object[] arestas;
-    private int vertice1;
-    private int vertice2;
-            
-    public Principal(){
-        vertices = new Object[50];
-        controller = new Papalegua();
-        vertice1=-1;
-        vertice2=-1;
-        iniComponents();  
+    private int bairro1;
+    private int bairro2;
+    /**
+     * Creates new form testForm
+     */
+    public Principal() {
         
-    }    
-    //busca um vertice no vetor que guarda os vertices e retorna o seu indice se não existir retorn -1
-    public int buscaVertice(Object o){
-        for(int i =0;i<50;i++){
-            if(vertices[i]==o){
-                return i;
-            }
-        }
-        return -1;
-    }
-    
-    public void iniComponents(){
-        //configura tela
-        setSize(800,600);
-        setLocationRelativeTo(null);
-        //cria componente de interface grafica do grafico
+        initComponents();
         graph = new mxGraph();
-        graphComponent= new mxGraphComponent(graph);
-         //cria botao
-        botaoIr = new JButton("Ir");
-        //define posição e altura e largura
-        botaoIr.setBounds(20, 500, 80, 20);
-        //adiciona botao a jframe
-        getContentPane().add(botaoIr);
-        
-        graph.setCellsMovable(false);  //impede as celulas do grafo de serem movidadas em tempo de execução
-        graph.setCellsResizable(false);//impede as celulas do grafo de terem seu tamanho alterado em tempo de execução
-        graph.setEdgeLabelsMovable(false);//impede as arestas de serem movidas em tempo de execução
-        //adiciona o grafo a jframe
+        graphComponent = new mxGraphComponent(graph); //cria o componente de interface grafica
+        graphComponent.setBounds(jPanel2.getWidth(),0,this.getWidth(),this.getHeight());
         getContentPane().add(graphComponent);
+        bairros = new Object[50];
         
+        bairro1=-1;
+        bairro2=-1;
+        
+        graph.setCellsEditable(false);
+        graph.setCellsMovable(false);
+        graph.setCellsResizable(false);
+        graph.setCellsSelectable(false);
         
         Object parent = graph.getDefaultParent();  
         //esse bloco adiciona os vertices na tela        
         for(int i=0;i<5;i++){
             for(int j=0;j<10;j++){
                 //calcula posicões na tela
-                int x =50+(120*j);
-                int y =20+(70*i);         
+                int x =(110*j);
+                int y =(60*i);         
                 //adiciona os vertices ao grafo e guarda a referencia para os vertices em um vetor
-                vertices[i*10+j]=graph.insertVertex(parent, null,controller.getBairros()[i*10+j], x, y, 100,50);
+                bairros[i*10+j]=graph.insertVertex(parent, null,controller.getBairros()[i*10+j], x, y, 100,50);
             }
         }
+        
+        botaoIr.setEnabled(false);
+        botaoAlterarTempo.setEnabled(false);
+        
         //cria um listener do mouse
         graphComponent.getGraphControl().addMouseListener(new MouseAdapter(){
             @Override
@@ -104,15 +81,29 @@ public class Principal extends javax.swing.JFrame{
             public void mouseReleased(MouseEvent me) {
                 //obtem o vertice que está na posição do mouse
                 Object aux = graphComponent.getCellAt(me.getX(), me.getY());
-                if(vertice1==-1){
-                    vertice1= buscaVertice(aux);
+                if(bairro1==-1){
+                    bairro1= buscaVertice(aux);
+                    if(bairro1>-1)
+                        textBairro1.setText(controller.getBairros()[bairro1]);
                 }
-                else if(vertice2==-1){
-                    vertice2=buscaVertice(aux);
+                else if(bairro2==-1){
+                    bairro2=buscaVertice(aux);
+                    if(bairro2>-1){
+                        textBairro2.setText(controller.getBairros()[bairro2]);
+                        botaoIr.setEnabled(true);
+                        if(controller.getGrafo().getCaminho(bairro1, bairro2) != null)
+                            botaoAlterarTempo.setEnabled(true);
+                    }
                 }
                 else{
-                    vertice1=buscaVertice(aux);
-                    vertice2=-1;
+                    bairro1=buscaVertice(aux);
+                    if(bairro1>-1){
+                        textBairro1.setText(controller.getBairros()[bairro1]);
+                        bairro2=-1;
+                        textBairro2.setText("");
+                        botaoIr.setEnabled(false);
+                        botaoAlterarTempo.setEnabled(false);
+                    }
                 }
              
             }   
@@ -125,44 +116,214 @@ public class Principal extends javax.swing.JFrame{
             public void mouseExited(MouseEvent me) {
             }
         });   
-        
-        botaoIr.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                //se vertice1 e vertice2 "apontam" para algum dos vertices do grafo
-                if(vertice1!=-1&vertice2!=-1){
-                    //remove as arestas que estão desenhadas na tela
-                    if(arestas!=null){
-                        for(Object o:arestas){
-                            graph.getModel().remove(o);
-                        }
-                    }
-                    //obtem o tempo do percurso
-                    float tempo = controller.caminhoMaisRapido(vertice1, vertice2);
-                    //cria as arestas de acordo com o percurso
-                    for(int i=0;i<controller.getRota().length-1;i++){
-                        //cria vetor de arestas
-                        arestas = new Object[controller.getRota().length-1];
-                        //cria aresta entre os vertices do percurso
-                        arestas[i]=graph.insertEdge(parent, null, null, vertices[controller.getRota()[i]] ,vertices[controller.getRota()[i+1]] );
-                    }
-                    //cria tela que mostra os dados
-                    TelaResultado result = new TelaResultado(controller.getBairros()[vertice1], controller.getBairros()[vertice2], tempo, tempo);
-                    //torna tela visivel
-                    result.setVisible(true);
-                }
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jPanel2 = new javax.swing.JPanel();
+        botaoIr = new java.awt.Button();
+        botaoAlterarTempo = new java.awt.Button();
+        botaoAlterarCusto = new java.awt.Button();
+        textBairro1 = new java.awt.TextField();
+        textBairro2 = new java.awt.TextField();
+        label1 = new java.awt.Label();
+        label2 = new java.awt.Label();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setResizable(false);
+
+        jPanel2.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+
+        botaoIr.setLabel("Ir");
+        botaoIr.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botaoIrActionPerformed(evt);
             }
         });
-                
-                
-        //graph.insertEdge(parent, null, "Hello",cell1 ,cell3 );
-        
-        
-        
-    }
+
+        botaoAlterarTempo.setLabel("Alterar tempo de Percurso");
+        botaoAlterarTempo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botaoAlterarTempoActionPerformed(evt);
+            }
+        });
+
+        botaoAlterarCusto.setLabel("Alterar Custo");
+        botaoAlterarCusto.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botaoAlterarCustoActionPerformed(evt);
+            }
+        });
+
+        textBairro1.setEditable(false);
+
+        textBairro2.setEditable(false);
+
+        label1.setText("Bairro Origem");
+
+        label2.setText("Bairro destino");
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(botaoIr, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(textBairro1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(botaoAlterarCusto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(botaoAlterarTempo, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(textBairro2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(label1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(42, 42, 42))
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(27, 27, 27)
+                .addComponent(label2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(24, 24, 24)
+                .addComponent(botaoIr, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(12, 12, 12)
+                .addComponent(label1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(textBairro1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(22, 22, 22)
+                .addComponent(label2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(textBairro2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 172, Short.MAX_VALUE)
+                .addComponent(botaoAlterarTempo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(44, 44, 44)
+                .addComponent(botaoAlterarCusto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(56, 56, 56))
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 1107, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void botaoAlterarTempoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botaoAlterarTempoActionPerformed
+        Float tempo= controller.getGrafo().getCaminho(bairro1, bairro2).getTempo();
+        AlterarTempo janela = new AlterarTempo(this,true,tempo);
+        janela.setVisible(true);
+        controller.getGrafo().getCaminho(bairro1, bairro2).setTempo(janela.getTempo());        
+          
+    }//GEN-LAST:event_botaoAlterarTempoActionPerformed
+
+    private void botaoIrActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botaoIrActionPerformed
+        if(arestas!=null){
+            if(arestas.length>0){
+                for(Object o:arestas){
+                    graph.getModel().remove(o);
+                }
+            }
+        }
+        Object parent = graph.getDefaultParent();      
+        //obtem o tempo do percurso
+        float tempo = controller.caminhoMaisRapido(bairro1, bairro2);
+        float custo = controller.getCustoRota();
+        //cria vetor de arestas
+        arestas = new Object[controller.getRota().length-1];
+        for(int i=0;i<controller.getRota().length-1;i++){
+            //cria aresta entre os vertices do percurso                
+            arestas[i]=graph.insertEdge(parent, null, null, bairros[controller.getRota()[i]] ,bairros[controller.getRota()[i+1]] );
+        }
+        //cria tela que mostra os dados
+        TelaResultado result = new TelaResultado(controller.getBairros()[bairro1], controller.getBairros()[bairro2], tempo, custo);
+        //torna tela visivel
+        result.setVisible(true);                    
+    }//GEN-LAST:event_botaoIrActionPerformed
+
+    private void botaoAlterarCustoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botaoAlterarCustoActionPerformed
+        float custo = (float)controller.getCompany().getValor1km();
+        AlterarCusto janela = new AlterarCusto(this, true, custo);
+        janela.setVisible(true);
+        controller.getCompany().setValor1km(janela.getCusto());
+    }//GEN-LAST:event_botaoAlterarCustoActionPerformed
     
-    public static void main (String[] args) {
-        Principal tela = new Principal();
-        tela.setVisible(true);
+
+    //busca um vertice no vetor que guarda os vertices e retorna o seu indice se não existir retorn -1
+    public int buscaVertice(Object o){
+        for(int i =0;i<50;i++){
+            if(bairros[i]==o){
+                return i;
+            }
+        }
+        return -1;
     }
+   
+   
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(Principal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(Principal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(Principal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(Principal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new Principal().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private java.awt.Button botaoAlterarCusto;
+    private java.awt.Button botaoAlterarTempo;
+    private java.awt.Button botaoIr;
+    private javax.swing.JPanel jPanel2;
+    private java.awt.Label label1;
+    private java.awt.Label label2;
+    private java.awt.TextField textBairro1;
+    private java.awt.TextField textBairro2;
+    // End of variables declaration//GEN-END:variables
 }
