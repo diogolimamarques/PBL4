@@ -16,6 +16,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -309,17 +310,28 @@ public class Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_botaoSalvaActionPerformed
     
     private void carregaGrafo(){
-        ObjectInputStream entrada =null;
-            try {               
-            entrada = new ObjectInputStream(new FileInputStream("config"));
-            for(int k=0;k<50;k++){
-                double i = entrada.readDouble();
-                double j =entrada.readDouble();
-                bairros[k] = graph.insertVertex(graph.getDefaultParent(), null,controller.getBairros()[k],i , j , 100,50);           
+        if(new File("config").exists()){
+            ObjectInputStream entrada =null;
+                try {
+                entrada = new ObjectInputStream(new FileInputStream("config"));
+                for(int k=0;k<50;k++){
+                    double i = entrada.readDouble();
+                    double j =entrada.readDouble();
+                    bairros[k] = graph.insertVertex(graph.getDefaultParent(), null,controller.getBairros()[k],i , j , 100,50);           
+                }
+                entrada.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);        
             }
-            entrada.close();
-        } catch (IOException ex) {
-            Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);        
+        }
+        else{
+            for(int i=0;i<5;i++){
+                for(int j=0;j<10;j++){
+                    double x = 20 + j*110;
+                    double y = 20 + i*60;
+                    bairros[10*i+j] = graph.insertVertex(graph.getDefaultParent(), null,controller.getBairros()[10*i+j],x , y , 100,50);           
+                }
+            }
         }
     }
 
