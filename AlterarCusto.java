@@ -12,6 +12,7 @@ package view;
  */
 public class AlterarCusto extends javax.swing.JDialog {
     private float custo;
+    private boolean erro;
     /**
      * Creates new form tempoDialog
      */
@@ -20,6 +21,14 @@ public class AlterarCusto extends javax.swing.JDialog {
         initComponents();
         textCusto.setText("R$ "+Float.toString(custo));
         this.custo=custo;
+        erro =false;
+    }
+    
+    public boolean teveErro(){
+        return erro;
+    }
+    public void alterarErro(boolean a){
+        erro =a;
     }
 
     /**
@@ -107,10 +116,12 @@ public class AlterarCusto extends javax.swing.JDialog {
     private void botaoOkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botaoOkActionPerformed
         try{
             this.custo = Float.parseFloat(textNovoCusto.getText());
-            setVisible(false);
         }
         catch(NumberFormatException ex){
-       //     new Mensagem( this.get ,true,"Digite um valor válido").setVisible(true);
+            erro=true;
+        }
+        finally{
+            setVisible(false);
         }
     }//GEN-LAST:event_botaoOkActionPerformed
 

@@ -15,6 +15,15 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
 /**
  *
@@ -36,29 +45,22 @@ public class Principal extends javax.swing.JFrame {
         initComponents();
         graph = new mxGraph();
         graphComponent = new mxGraphComponent(graph); //cria o componente de interface grafica
-        graphComponent.setBounds(jPanel2.getWidth(),0,this.getWidth(),this.getHeight());
+        graphComponent.setBounds(PanelPrincipal.getWidth(),0,this.getWidth(),this.getHeight());
         getContentPane().add(graphComponent);
         bairros = new Object[50];
         
         bairro1=-1;
         bairro2=-1;
         
-        graph.setCellsEditable(false);
-        graph.setCellsMovable(false);
-        graph.setCellsResizable(false);
-        graph.setCellsSelectable(false);
         
-        Object parent = graph.getDefaultParent();  
-        //esse bloco adiciona os vertices na tela        
-        for(int i=0;i<5;i++){
-            for(int j=0;j<10;j++){
-                //calcula posicões na tela
-                int x =(110*j);
-                int y =(60*i);         
-                //adiciona os vertices ao grafo e guarda a referencia para os vertices em um vetor
-                bairros[i*10+j]=graph.insertVertex(parent, null,controller.getBairros()[i*10+j], x, y, 100,50);
-            }
-        }
+        
+      //  graph.setCellsEditable(false);
+      //  graph.setCellsMovable(false);
+      //  graph.setCellsResizable(false);
+        //graph.setCellsSelectable(false);
+       
+       
+       carregaGrafo();
         
         botaoIr.setEnabled(false);
         botaoAlterarTempo.setEnabled(false);
@@ -115,7 +117,8 @@ public class Principal extends javax.swing.JFrame {
             @Override
             public void mouseExited(MouseEvent me) {
             }
-        });   
+        });  
+        
     }
 
     /**
@@ -127,7 +130,7 @@ public class Principal extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel2 = new javax.swing.JPanel();
+        PanelPrincipal = new javax.swing.JPanel();
         botaoIr = new java.awt.Button();
         botaoAlterarTempo = new java.awt.Button();
         botaoAlterarCusto = new java.awt.Button();
@@ -135,11 +138,12 @@ public class Principal extends javax.swing.JFrame {
         textBairro2 = new java.awt.TextField();
         label1 = new java.awt.Label();
         label2 = new java.awt.Label();
+        botaoSalva = new java.awt.Button();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        PanelPrincipal.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
         botaoIr.setLabel("Ir");
         botaoIr.addActionListener(new java.awt.event.ActionListener() {
@@ -170,31 +174,43 @@ public class Principal extends javax.swing.JFrame {
 
         label2.setText("Bairro destino");
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+        botaoSalva.setLabel("Salvar");
+        botaoSalva.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botaoSalvaActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout PanelPrincipalLayout = new javax.swing.GroupLayout(PanelPrincipal);
+        PanelPrincipal.setLayout(PanelPrincipalLayout);
+        PanelPrincipalLayout.setHorizontalGroup(
+            PanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelPrincipalLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(PanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(botaoIr, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(textBairro1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(botaoAlterarCusto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(botaoAlterarTempo, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(textBairro2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelPrincipalLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(label1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(42, 42, 42))
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(27, 27, 27)
-                .addComponent(label2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(PanelPrincipalLayout.createSequentialGroup()
+                .addGroup(PanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(PanelPrincipalLayout.createSequentialGroup()
+                        .addGap(27, 27, 27)
+                        .addComponent(label2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(PanelPrincipalLayout.createSequentialGroup()
+                        .addGap(57, 57, 57)
+                        .addComponent(botaoSalva, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+        PanelPrincipalLayout.setVerticalGroup(
+            PanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelPrincipalLayout.createSequentialGroup()
                 .addGap(24, 24, 24)
                 .addComponent(botaoIr, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(12, 12, 12)
@@ -205,7 +221,9 @@ public class Principal extends javax.swing.JFrame {
                 .addComponent(label2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(textBairro2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 172, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 102, Short.MAX_VALUE)
+                .addComponent(botaoSalva, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(46, 46, 46)
                 .addComponent(botaoAlterarTempo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(44, 44, 44)
                 .addComponent(botaoAlterarCusto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -217,12 +235,12 @@ public class Principal extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(PanelPrincipal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 1107, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(PanelPrincipal, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -264,9 +282,46 @@ public class Principal extends javax.swing.JFrame {
         float custo = (float)controller.getCompany().getValor1km();
         AlterarCusto janela = new AlterarCusto(this, true, custo);
         janela.setVisible(true);
-        controller.getCompany().setValor1km(janela.getCusto());
+        if(janela.teveErro()){
+            Mensagem msg = new Mensagem(this,true,"Valor");
+            msg.setVisible(true);
+            janela.alterarErro(false);
+            janela.setVisible(true);
+        }
+        else
+        {
+            controller.getCompany().setValor1km(janela.getCusto());
+        }
     }//GEN-LAST:event_botaoAlterarCustoActionPerformed
+
+    private void botaoSalvaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botaoSalvaActionPerformed
+        ObjectOutputStream saida = null;
+        try {               
+            saida = new ObjectOutputStream(new FileOutputStream("config"));
+            for(int i=0;i<50;i++){
+                saida.writeDouble(graph.getCellGeometry(bairros[i]).getX());
+                saida.writeDouble(graph.getCellGeometry(bairros[i]).getY());               
+            }
+            saida.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);        
+        }
+    }//GEN-LAST:event_botaoSalvaActionPerformed
     
+    private void carregaGrafo(){
+        ObjectInputStream entrada =null;
+            try {               
+            entrada = new ObjectInputStream(new FileInputStream("config"));
+            for(int k=0;k<50;k++){
+                double i = entrada.readDouble();
+                double j =entrada.readDouble();
+                bairros[k] = graph.insertVertex(graph.getDefaultParent(), null,controller.getBairros()[k],i , j , 100,50);           
+            }
+            entrada.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);        
+        }
+    }
 
     //busca um vertice no vetor que guarda os vertices e retorna o seu indice se não existir retorn -1
     public int buscaVertice(Object o){
@@ -317,10 +372,11 @@ public class Principal extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel PanelPrincipal;
     private java.awt.Button botaoAlterarCusto;
     private java.awt.Button botaoAlterarTempo;
     private java.awt.Button botaoIr;
-    private javax.swing.JPanel jPanel2;
+    private java.awt.Button botaoSalva;
     private java.awt.Label label1;
     private java.awt.Label label2;
     private java.awt.TextField textBairro1;

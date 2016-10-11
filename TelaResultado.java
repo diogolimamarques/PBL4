@@ -19,7 +19,8 @@ public class TelaResultado extends javax.swing.JFrame {
         textOrigem.setText(origem);
         textDestino.setText(Destino);
         textTempo.setText(Float.toString(tempo)+" min");
-        textCusto.setText("R$ "+Float.toString(custo));
+        String Pcusto = Float.toString(custo);
+        textCusto.setText("R$ "+ Pcusto);
     }
 
     /**
