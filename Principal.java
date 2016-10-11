@@ -46,9 +46,10 @@ public class Principal extends javax.swing.JFrame {
         initComponents();
         graph = new mxGraph();
         graphComponent = new mxGraphComponent(graph); //cria o componente de interface grafica
-        graphComponent.setBounds(PanelPrincipal.getWidth(),0,this.getWidth(),this.getHeight());
+        graphComponent.setBounds(PanelPrincipal.getWidth(),0,this.getWidth()-187,this.getHeight()-28);
         getContentPane().add(graphComponent);
         bairros = new Object[50];
+        graphComponent.setAutoscrolls(true);
         
         bairro1=-1;
         bairro2=-1;
@@ -66,6 +67,8 @@ public class Principal extends javax.swing.JFrame {
         botaoIr.setEnabled(false);
         botaoAlterarTempo.setEnabled(false);
         
+        graphComponent.createHorizontalScrollBar().setAutoscrolls(true);
+        graphComponent.createVerticalScrollBar().setAutoscrolls(true);
         //cria um listener do mouse
         graphComponent.getGraphControl().addMouseListener(new MouseAdapter(){
             @Override
@@ -80,7 +83,7 @@ public class Principal extends javax.swing.JFrame {
             }
 
             @Override
-            //dispara ao clickar no graphComponent
+            //dispara ao clicar no graphComponent
             public void mouseReleased(MouseEvent me) {
                 //obtem o vertice que está na posição do mouse
                 Object aux = graphComponent.getCellAt(me.getX(), me.getY());
@@ -142,6 +145,7 @@ public class Principal extends javax.swing.JFrame {
         botaoSalva = new java.awt.Button();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setResizable(false);
 
         PanelPrincipal.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -237,11 +241,11 @@ public class Principal extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(PanelPrincipal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 1107, Short.MAX_VALUE))
+                .addContainerGap(1107, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(PanelPrincipal, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(PanelPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -274,7 +278,7 @@ public class Principal extends javax.swing.JFrame {
             arestas[i]=graph.insertEdge(parent, null, null, bairros[controller.getRota()[i]] ,bairros[controller.getRota()[i+1]] );
         }
         //cria tela que mostra os dados
-        TelaResultado result = new TelaResultado(controller.getBairros()[bairro1], controller.getBairros()[bairro2], tempo, custo);
+        TelaResultado result = new TelaResultado(controller.getBairros()[bairro1], controller.getBairros()[bairro2], tempo, custo, controller.getDistRota());
         //torna tela visivel
         result.setVisible(true);                    
     }//GEN-LAST:event_botaoIrActionPerformed
@@ -327,8 +331,8 @@ public class Principal extends javax.swing.JFrame {
         else{
             for(int i=0;i<5;i++){
                 for(int j=0;j<10;j++){
-                    double x = 20 + j*110;
-                    double y = 20 + i*60;
+                    double x = 20 + j*165;
+                    double y = 20 + i*165;
                     bairros[10*i+j] = graph.insertVertex(graph.getDefaultParent(), null,controller.getBairros()[10*i+j],x , y , 100,50);           
                 }
             }

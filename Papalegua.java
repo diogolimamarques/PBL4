@@ -6,8 +6,11 @@
 package controller;
 
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -218,6 +221,28 @@ public class Papalegua {
         escritor.close(); //Fecha o BufferedWriter
     }
     
+     /*Metodo que le o historico e o devolve na forma de uma lista de Strings*/
+    
+    public ILista leituraHistorico() throws IOException{
+        ILista lista = new Lista();
+        String linha = new String();
+        
+        try {
+            BufferedReader leitor = new BufferedReader(new FileReader("Viagens.txt"));
+            linha = leitor.readLine();
+            
+            while(linha != null){
+                lista.inserirFinal(linha);
+                linha = leitor.readLine();
+            }
+            leitor.close();
+        } catch (FileNotFoundException ex) {
+            lista.inserirFinal("Historico Vazio");
+        }
+   
+        return lista;
+    }
+    
     /*Método que colhe a data do sistema e a concatena numa String*/
         
     private String getDataHora(){
@@ -264,5 +289,11 @@ public class Papalegua {
     public float getCustoRota() {
         return custoRota;
     }
+
+    public float getDistRota() {
+        return distRota;
+    }
+    
+    
     
 }
