@@ -27,7 +27,7 @@ public class AlterarCusto extends javax.swing.JDialog {
     public boolean teveErro(){
         return erro;
     }
-    public void alterarErro(boolean a){
+    public void setTemErro(boolean a){
         erro =a;
     }
 
@@ -117,7 +117,7 @@ public class AlterarCusto extends javax.swing.JDialog {
         try{
             this.custo = Float.parseFloat(textNovoCusto.getText());
         }
-        catch(NumberFormatException ex){
+        catch(NumberFormatException ex){            
             erro=true;
         }
         finally{

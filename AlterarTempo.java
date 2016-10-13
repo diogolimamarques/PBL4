@@ -12,6 +12,7 @@ package view;
  */
 public class AlterarTempo extends javax.swing.JDialog {
     private float tempo;
+    private boolean erro;
     /**
      * Creates new form tempoDialog
      */
@@ -20,6 +21,15 @@ public class AlterarTempo extends javax.swing.JDialog {
         initComponents();
         textTempo.setText(Float.toString(tempo)+" min");
         this.tempo=tempo;
+        erro =false;
+    }
+    
+    public void setTemErro(boolean o){
+        erro = o;
+    }
+    
+    public boolean getErro (){
+        return erro;
     }
 
     /**
@@ -106,11 +116,13 @@ public class AlterarTempo extends javax.swing.JDialog {
 
     private void botaoOkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botaoOkActionPerformed
         try{
-            this.tempo = Float.parseFloat(textNovoTempo.getText());
-            setVisible(false);
+            this.tempo = Float.parseFloat(textNovoTempo.getText());           
         }
         catch(NumberFormatException ex){
-           // new Mensagem("Digite um valor válido").setVisible(true);
+           erro = true;
+        }
+        finally{
+           setVisible(false);
         }
     }//GEN-LAST:event_botaoOkActionPerformed
 
