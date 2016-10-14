@@ -15,13 +15,11 @@ public class Taxista {
     private String placaDoCarro;
     private int id;
     private static int idGeral = 0;
-    private String bairroAtual;
     
     public Taxista(String n, String p){
         nome = n;
         placaDoCarro = p;
         id = idGeral++;
-        bairroAtual = null;
     }
 
     public String getNome() {
@@ -48,12 +46,4 @@ public class Taxista {
         this.id = id;
     }
 
-    public String getBairroAtual() {
-        return bairroAtual;
-    }
-
-    public void setBairroAtual(String bairroAtual) {
-        this.bairroAtual = bairroAtual;
-    }
-    
 }

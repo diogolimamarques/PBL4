@@ -6,11 +6,8 @@
 package controller;
 
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -180,20 +177,69 @@ public class Papalegua {
 
     }
     
-    /*Atribui a cada taxista um "bairro atual" aleatÃ³rio.*/
+    /*Atribui a dez taxistas um "bairro atual" aleatorio. O retorno é composto de um
+      array de 50 posições, cada uma representando um bairro, e, nestas posições, nos
+      bairros em que não há taxista, haverá 'null'. Nos bairros em que haverão, existirá
+      um objeto do tipo taxista, que representa o taxista ali presente.*/
     
-     public void posicionaTaxistasAleatoriamente(){
+     public Taxista[] posicionaTaxistasAleatoriamente(){
+         
+         if(company.getTaxistas().obterTamanho() < 10){ //Verifica se a lista de taxistas tem o numero minimo.
+             geraDezTaxistas();                         //Se nao tiver, acrescenta o numero minimo
+         }
         
          Iterador it = company.getTaxistas().iterador();
-         Random rn = new Random();
-         Taxista atual;
-         int aux = 0;
+         Taxista vetorPosicao[] = new Taxista[50];
+         int i = 0, j = 0, cont = 0;
          
-         while(it.temProximo()){
-             aux = rn.nextInt(50);
-             atual = (Taxista)it.obterProximo();
-             atual.setBairroAtual(bairros[aux]);
+         int[] arrayBairrosSorteados = geraArrayAleatorio(50, 10);  //Gera um array com os 10 bairros em que haverao taxistas
+         int[] arrayTaxistasSorteados = geraArrayAleatorio(company.getTaxistas().obterTamanho(), 10);   //Gera um array com as posicoes dos 10 taxistas na lista
+         
+         for(i = 0; i < 50; i++){                       //Inicializa o vetor com nulo em todas as posicoes
+             vetorPosicao[i] = null;
          }
+         
+         i = 0;
+         
+         while(cont < 10){  //Atribui cada taxista a uma posicao, que representa o bairro
+             while(arrayTaxistasSorteados[i] == 0){
+                 i++;
+             }
+             
+             while(arrayBairrosSorteados[j] == 0){
+                 j++;
+             }
+             vetorPosicao[j] = (Taxista)company.getTaxistas().recuperar(i);
+             cont++;
+         }
+         
+         return vetorPosicao;
+    }
+     
+    /*Método que gera um array de 1 e 0 aleatório. Ele recebe o tamanho do array 
+     desejado e a quantidade de '1' que deseja que apareça.*/
+     
+    private int[] geraArrayAleatorio(int tam, int qnt){ 
+        int[] array = new int[tam];
+        Random rn = new Random();
+        int aux;
+        
+        for(int i = 0; i<tam; i++){ //Inicializa o array com 0
+            array[i] = 0;
+        }
+        
+        for(int i = 0; i<qnt; i++){ //Randomiza as posicoes dos '1'
+            aux = rn.nextInt(tam);
+            
+            if(array[aux] == 0){    //Muda de 0 para 1
+                array[aux] = 1;
+            }
+            else{                   //Caso a posicao ja seja 1, volta 1 etapa
+                i--;
+            }
+        }
+        
+        return array;
     }
      
     /*Altera o custo por quilÃ´metro*/
@@ -221,27 +267,8 @@ public class Papalegua {
         escritor.close(); //Fecha o BufferedWriter
     }
     
-     /*Metodo que le o historico e o devolve na forma de uma lista de Strings*/
     
-    public ILista leituraHistorico() throws IOException{
-        ILista lista = new Lista();
-        String linha = new String();
-        
-        try {
-            BufferedReader leitor = new BufferedReader(new FileReader("Viagens.txt"));
-            linha = leitor.readLine();
-            
-            while(linha != null){
-                lista.inserirFinal(linha);
-                linha = leitor.readLine();
-            }
-            leitor.close();
-        } catch (FileNotFoundException ex) {
-            lista.inserirFinal("Historico Vazio");
-        }
-   
-        return lista;
-    }
+    
     
     /*Método que colhe a data do sistema e a concatena numa String*/
         
@@ -289,11 +316,5 @@ public class Papalegua {
     public float getCustoRota() {
         return custoRota;
     }
-
-    public float getDistRota() {
-        return distRota;
-    }
-    
-    
     
 }
